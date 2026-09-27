@@ -85,10 +85,18 @@ export const updateCar = async (req, res) => {
       if (req.body[field] !== undefined) car[field] = req.body[field];
     });
 
-    if (req.files && req.files.length > 0) {
-      const newImages = req.files.map((file) => `/uploads/${file.filename}`);
-      car.images = [...car.images, ...newImages];
+    let keptImages = car.images;
+    if (req.body.existingImages !== undefined) {
+      try {
+        keptImages = JSON.parse(req.body.existingImages);
+      } catch (e) {
+        keptImages = car.images;
+      }
     }
+
+    const newImages = req.files ? req.files.map((file) => `/uploads/${file.filename}`) : [];
+
+    car.images = [...keptImages, ...newImages];
 
     await car.save();
     return res.status(200).json({ message: "Car updated successfully", car });
