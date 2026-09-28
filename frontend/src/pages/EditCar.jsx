@@ -22,6 +22,7 @@ export default function EditCar() {
   const [existingImages, setExistingImages] = useState([]);
   const [newImageFiles, setNewImageFiles] = useState([]);
   const [newPreviews, setNewPreviews] = useState([]);
+  const [replaceOld, setReplaceOld] = useState(true);
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -76,6 +77,11 @@ export default function EditCar() {
       Object.entries(formData).forEach(([key, value]) => {
         data.append(key, value);
       });
+
+
+      const keep = replaceOld && newImageFiles.length > 0 ? [] : existingImages;
+      data.append("existingImages", JSON.stringify(keep));
+
       newImageFiles.forEach((file) => {
         data.append("images", file);
       });
@@ -197,12 +203,24 @@ export default function EditCar() {
           <label className="block text-gray-700 mb-1">Yangi rasm qo'shish (ixtiyoriy, maksimum 5 ta)</label>
           <input type="file" accept="image/*" multiple onChange={handleImageChange}
             className="w-full border border-gray-300 rounded-lg px-3 py-2" />
+
           {newPreviews.length > 0 && (
             <div className="flex gap-2 mt-3 flex-wrap">
               {newPreviews.map((src, idx) => (
                 <img key={idx} src={src} className="w-20 h-20 object-cover rounded-lg border" />
               ))}
             </div>
+          )}
+
+          {newImageFiles.length > 0 && (
+            <label className="flex items-center gap-2 mt-3 text-sm text-gray-700">
+              <input
+                type="checkbox"
+                checked={replaceOld}
+                onChange={(e) => setReplaceOld(e.target.checked)}
+              />
+              Eski rasmlarni yangisi bilan almashtirish
+            </label>
           )}
         </div>
 

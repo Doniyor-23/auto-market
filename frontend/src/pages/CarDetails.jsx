@@ -3,6 +3,9 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import api from "../api/axios";
 import { AuthContext } from "../context/AuthContext";
 
+// O'zingizning Telegram username'ingizni yozing (@ belgisiz)
+const TELEGRAM_USERNAME = "ramazonovvvvv";
+
 const BACKEND_URL = import.meta.env.VITE_API_URL.replace("/api", "");
 const resolveImage = (img) => {
   if (!img) return "https://placehold.co/800x500?text=No+Image";
@@ -59,6 +62,13 @@ export default function CarDetails() {
   }
 
   const images = car.images && car.images.length > 0 ? car.images : [null];
+
+  // Telegram uchun tayyor xabar
+  const message =
+    `Salom! Men ${car.brand} ${car.model} (${car.year}) mashinasini sotib olmoqchiman.\n` +
+    `Narxi: $${car.price?.toLocaleString()}\n` +
+    `Havola: ${window.location.href}`;
+  const telegramLink = `https://t.me/${TELEGRAM_USERNAME}?text=${encodeURIComponent(message)}`;
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-12">
@@ -132,6 +142,15 @@ export default function CarDetails() {
               <p className="text-gray-600">{car.description}</p>
             </div>
           )}
+
+          
+          <a  href={telegramLink}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-8 flex items-center justify-center gap-2 bg-blue-500 text-white py-3 rounded-lg font-semibold hover:bg-blue-600 transition"
+            >
+            Sotib olish (Telegram)
+          </a>
         </div>
       </div>
     </div>
