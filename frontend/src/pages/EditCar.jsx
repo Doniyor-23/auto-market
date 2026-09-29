@@ -19,10 +19,10 @@ export default function EditCar() {
     color: "", location: "", description: "",
   });
 
+  // Saqlanib qoladigan eski rasmlar. × bosilsa shu ro'yxatdan o'chadi.
   const [existingImages, setExistingImages] = useState([]);
   const [newImageFiles, setNewImageFiles] = useState([]);
   const [newPreviews, setNewPreviews] = useState([]);
-  const [replaceOld, setReplaceOld] = useState(true);
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -66,6 +66,11 @@ export default function EditCar() {
     setNewPreviews(files.map((file) => URL.createObjectURL(file)));
   };
 
+  // × tugmasi — mavjud rasmni ro'yxatdan olib tashlaydi (hali serverga yuborilmagan)
+  const removeExistingImage = (indexToRemove) => {
+    setExistingImages(existingImages.filter((_, idx) => idx !== indexToRemove));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -78,9 +83,8 @@ export default function EditCar() {
         data.append(key, value);
       });
 
-
-      const keep = replaceOld && newImageFiles.length > 0 ? [] : existingImages;
-      data.append("existingImages", JSON.stringify(keep));
+      // Saqlab qolingan (× bosilmagan) eski rasmlar ro'yxati
+      data.append("existingImages", JSON.stringify(existingImages));
 
       newImageFiles.forEach((file) => {
         data.append("images", file);
@@ -188,39 +192,42 @@ export default function EditCar() {
             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
         </div>
 
-        {existingImages.length > 0 && (
-          <div>
-            <label className="block text-gray-700 mb-1">Hozirgi rasmlar</label>
+        <div>
+          <label className="block text-gray-700 mb-1">Hozirgi rasmlar</label>
+          {existingImages.length === 0 ? (
+            <p className="text-gray-400 text-sm">Rasm yo'q</p>
+          ) : (
             <div className="flex gap-2 flex-wrap">
               {existingImages.map((img, idx) => (
-                <img key={idx} src={resolveImage(img)} className="w-20 h-20 object-cover rounded-lg border" />
+                <div key={idx} className="relative">
+                  <img src={resolveImage(img)} className="w-20 h-20 object-cover rounded-lg border" />
+                  <button
+                    type="button"
+                    onClick={() => removeExistingImage(idx)}
+                    title="Rasmni o'chirish"
+                    className="absolute -top-2 -right-2 bg-red-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm leading-none hover:bg-red-600 transition shadow"
+                  >
+                    ×
+                  </button>
+                </div>
               ))}
             </div>
-          </div>
-        )}
+          )}
+          <p className="text-gray-400 text-xs mt-1">
+            Rasmni almashtirish uchun: avval × bosib eskisini o'chiring, keyin pastdan yangisini tanlang.
+          </p>
+        </div>
 
         <div>
           <label className="block text-gray-700 mb-1">Yangi rasm qo'shish (ixtiyoriy, maksimum 5 ta)</label>
           <input type="file" accept="image/*" multiple onChange={handleImageChange}
             className="w-full border border-gray-300 rounded-lg px-3 py-2" />
-
           {newPreviews.length > 0 && (
             <div className="flex gap-2 mt-3 flex-wrap">
               {newPreviews.map((src, idx) => (
                 <img key={idx} src={src} className="w-20 h-20 object-cover rounded-lg border" />
               ))}
             </div>
-          )}
-
-          {newImageFiles.length > 0 && (
-            <label className="flex items-center gap-2 mt-3 text-sm text-gray-700">
-              <input
-                type="checkbox"
-                checked={replaceOld}
-                onChange={(e) => setReplaceOld(e.target.checked)}
-              />
-              Eski rasmlarni yangisi bilan almashtirish
-            </label>
           )}
         </div>
 

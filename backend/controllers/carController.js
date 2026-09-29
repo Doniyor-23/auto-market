@@ -85,6 +85,8 @@ export const updateCar = async (req, res) => {
       if (req.body[field] !== undefined) car[field] = req.body[field];
     });
 
+    // Frontend "existingImages" nomi bilan foydalanuvchi × tugmasi orqali
+    // SAQLAB QOLGAN rasmlar ro'yxatini yuboradi (o'chirilganlar bu ro'yxatda yo'q)
     let keptImages = car.images;
     if (req.body.existingImages !== undefined) {
       try {
@@ -96,6 +98,7 @@ export const updateCar = async (req, res) => {
 
     const newImages = req.files ? req.files.map((file) => `/uploads/${file.filename}`) : [];
 
+    // Yakuniy natija = saqlab qolingan eski rasmlar + yangi yuklanganlar
     car.images = [...keptImages, ...newImages];
 
     await car.save();
